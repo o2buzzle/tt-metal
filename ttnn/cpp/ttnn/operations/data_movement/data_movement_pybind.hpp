@@ -4,46 +4,45 @@
 
 #pragma once
 
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 #include "ttnn/cpp/pybind11/decorators.hpp"
+#include "ttnn/cpp/ttnn/operations/data_movement/sharded/interleaved_to_sharded/interleaved_to_sharded_pybind.hpp"
+#include "ttnn/cpp/ttnn/operations/data_movement/sharded/reshard/reshard_pybind.hpp"
+#include "ttnn/cpp/ttnn/operations/data_movement/sharded/sharded_to_interleaved/sharded_to_interleaved_pybind.hpp"
+#include "ttnn/operations/data_movement/bcast/bcast_pybind.hpp"
 #include "ttnn/operations/data_movement/concat/concat_pybind.hpp"
+#include "ttnn/operations/data_movement/copy/copy_pybind.hpp"
+#include "ttnn/operations/data_movement/expand/expand_pybind.hpp"
+#include "ttnn/operations/data_movement/fill_rm/fill_rm_pybind.hpp"
+#include "ttnn/operations/data_movement/fold/fold_pybind.hpp"
+#include "ttnn/operations/data_movement/indexed_fill/indexed_fill_pybind.hpp"
+#include "ttnn/operations/data_movement/move/move_pybind.hpp"
+#include "ttnn/operations/data_movement/non_zero_indices/non_zero_indices_pybind.hpp"
 #include "ttnn/operations/data_movement/pad/pad_pybind.hpp"
 #include "ttnn/operations/data_movement/permute/permute_pybind.hpp"
+#include "ttnn/operations/data_movement/repeat/repeat_pybind.hpp"
+#include "ttnn/operations/data_movement/repeat_interleave/repeat_interleave_pybind.hpp"
+#include "ttnn/operations/data_movement/reshape/reshape_pybind.hpp"
+#include "ttnn/operations/data_movement/sharded_partial/interleaved_to_sharded_partial/interleaved_to_sharded_partial_pybind.hpp"
+#include "ttnn/operations/data_movement/sharded_partial/sharded_to_interleaved_partial/sharded_to_interleaved_partial_pybind.hpp"
 #include "ttnn/operations/data_movement/slice/slice_pybind.hpp"
+#include "ttnn/operations/data_movement/split/split_pybind.hpp"
+#include "ttnn/operations/data_movement/squeeze/squeeze_pybind.hpp"
 #include "ttnn/operations/data_movement/tilize/tilize_pybind.hpp"
 #include "ttnn/operations/data_movement/tilize_with_val_padding/tilize_with_val_padding_pybind.hpp"
-#include "ttnn/operations/data_movement/repeat_interleave/repeat_interleave_pybind.hpp"
 #include "ttnn/operations/data_movement/transpose/transpose_pybind.hpp"
-#include "ttnn/operations/data_movement/split/split_pybind.hpp"
-#include "ttnn/operations/data_movement/untilize/untilize_pybind.hpp"
-#include "ttnn/operations/data_movement/untilize_with_unpadding/untilize_with_unpadding_pybind.hpp"
-#include "ttnn/operations/data_movement/untilize_with_halo_v2/untilize_with_halo_v2_pybind.hpp"
-#include "ttnn/operations/data_movement/non_zero_indices/non_zero_indices_pybind.hpp"
-#include "ttnn/operations/data_movement/fill_rm/fill_rm_pybind.hpp"
-#include "ttnn/operations/data_movement/repeat/repeat_pybind.hpp"
-#include "ttnn/operations/data_movement/fold/fold_pybind.hpp"
-#include "ttnn/operations/data_movement/sharded_partial/sharded_to_interleaved_partial/sharded_to_interleaved_partial_pybind.hpp"
-#include "ttnn/operations/data_movement/sharded_partial/interleaved_to_sharded_partial/interleaved_to_sharded_partial_pybind.hpp"
-#include "ttnn/operations/data_movement/reshape/reshape_pybind.hpp"
 #include "ttnn/operations/data_movement/unsqueeze/unsqueeze_pybind.hpp"
-#include "ttnn/operations/data_movement/squeeze/squeeze_pybind.hpp"
-#include "ttnn/cpp/ttnn/operations/data_movement/sharded/interleaved_to_sharded/interleaved_to_sharded_pybind.hpp"
-#include "ttnn/cpp/ttnn/operations/data_movement/sharded/sharded_to_interleaved/sharded_to_interleaved_pybind.hpp"
-#include "ttnn/cpp/ttnn/operations/data_movement/sharded/reshard/reshard_pybind.hpp"
-#include "ttnn/operations/data_movement/indexed_fill/indexed_fill_pybind.hpp"
-#include "ttnn/operations/data_movement/copy/copy_pybind.hpp"
-#include "ttnn/operations/data_movement/move/move_pybind.hpp"
-#include "ttnn/operations/data_movement/bcast/bcast_pybind.hpp"
+#include "ttnn/operations/data_movement/untilize/untilize_pybind.hpp"
+#include "ttnn/operations/data_movement/untilize_with_halo_v2/untilize_with_halo_v2_pybind.hpp"
+#include "ttnn/operations/data_movement/untilize_with_unpadding/untilize_with_unpadding_pybind.hpp"
 
 namespace py = pybind11;
 
 namespace ttnn {
 namespace operations {
 namespace data_movement {
-
 
 void py_module(py::module& module) {
     detail::bind_permute(module);
@@ -77,6 +76,7 @@ void py_module(py::module& module) {
     py_bind_interleaved_to_sharded(module);
     py_bind_reshard(module);
     detail::py_bind_bcast(module);
+    expand::bind_expand_operation(module);
 }
 
 }  // namespace data_movement
