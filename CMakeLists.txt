@@ -259,6 +259,8 @@ if(TT_METAL_BUILD_TESTS OR TTNN_BUILD_TESTS)
     add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
 endif(TT_METAL_BUILD_TESTS OR TTNN_BUILD_TESTS)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/native)
+
 ############################################################################################################################
 # Install targets for build artifacts and pybinds
 #   If built with Tracy, cannot install 'all' since it will pick up install targets from Tracy
