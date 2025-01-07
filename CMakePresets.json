@@ -6,7 +6,7 @@
         "displayName": "Default Config",
         "description": "Default build of all the code using Ninja",
         "generator": "Ninja Multi-Config",
-        "binaryDir": "${sourceDir}/.build/default",
+        "binaryDir": "${sourceDir}/build/default",
         "cacheVariables": {
           "TT_METAL_BUILD_TESTS": {"value": "TRUE"},
           "TTNN_BUILD_TESTS": {"value": "TRUE"},

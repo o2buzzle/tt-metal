@@ -1,29 +1,130 @@
-#include <iostream>
-#include <memory>
+#include <cstdint>
+#include <string>
+#include "tt_metal/common/core_coord.hpp"
+#include "tt_metal/detail/persistent_kernel_cache.hpp"
+#include "tt_metal/host_api.hpp"
+#include "tt_metal/common/work_split.hpp"
 
-#include "detail/tt_metal.hpp"
-#include "host_api.hpp"
-#include "ttnn/operations/examples/example_multiple_return/example_multiple_return.hpp"
+void run_once_cta() {
+    Device* device = tt::tt_metal::CreateDevice(0);
+    CommandQueue& command_queue = device->command_queue();
+    auto program = tt::tt_metal::CreateProgram();
+
+    auto cores = device->compute_with_storage_grid_size();
+    CoreRangeSet all_cores = num_cores_to_corerangeset(cores.x * cores.y, cores);
+
+    const std::string reader_kernel_path = "/home/ubuntu/tt-metal/native/reader_kernel_256_cta.cpp";
+    // Vector of 256 "1" values, use as kernel args
+    std::vector<uint32_t> kernel_args(256, 1);
+    for (int i = 0; i < 256; i++) {
+        kernel_args[i] = i;
+    }
+
+    auto reader_kernel = tt::tt_metal::CreateKernel(
+        program,
+        reader_kernel_path,
+        all_cores,
+        tt::tt_metal::DataMovementConfig{
+            .processor = tt::tt_metal::DataMovementProcessor::RISCV_1,
+            .noc = tt::tt_metal::NOC::RISCV_1_default,
+            .compile_args = kernel_args});
+    EnqueueProgram(command_queue, program, true);
+    Finish(command_queue);
+
+    DumpDeviceProfileResults(device, program);
+
+    CloseDevice(device);
+}
+
+void run_once_rta() {
+    Device* device = tt::tt_metal::CreateDevice(0);
+    CommandQueue& command_queue = device->command_queue();
+    auto program = tt::tt_metal::CreateProgram();
+
+    auto cores = device->compute_with_storage_grid_size();
+    CoreRangeSet all_cores = num_cores_to_corerangeset(cores.x * cores.y, cores);
+
+    const std::string reader_kernel_path = "/home/ubuntu/tt-metal/native/reader_kernel_256_rta.cpp";
+    // Vector of 256 "1" values, use as kernel args
+    std::vector<uint32_t> kernel_args(256, 1);
+    for (int i = 0; i < 256; i++) {
+        kernel_args[i] = i;
+    }
+
+    auto reader_kernel = tt::tt_metal::CreateKernel(
+        program,
+        reader_kernel_path,
+        all_cores,
+        tt::tt_metal::DataMovementConfig{
+            .processor = tt::tt_metal::DataMovementProcessor::RISCV_1,
+            .noc = tt::tt_metal::NOC::RISCV_1_default,
+        });
+
+    SetRuntimeArgs(program, reader_kernel, all_cores, kernel_args);
+    EnqueueProgram(command_queue, program, true);
+    Finish(command_queue);
+
+    DumpDeviceProfileResults(device, program);
+
+    CloseDevice(device);
+}
+
+void run_once_crta() {
+    Device* device = tt::tt_metal::CreateDevice(0);
+    CommandQueue& command_queue = device->command_queue();
+    auto program = tt::tt_metal::CreateProgram();
+
+    auto cores = device->compute_with_storage_grid_size();
+    CoreRangeSet all_cores = num_cores_to_corerangeset(cores.x * cores.y, cores);
+
+    const std::string reader_kernel_path = "/home/ubuntu/tt-metal/native/reader_kernel_256_crta.cpp";
+    // Vector of 256 "1" values, use as kernel args
+    std::vector<uint32_t> kernel_args(256, 1);
+    for (int i = 0; i < 256; i++) {
+        kernel_args[i] = i;
+    }
+
+    auto reader_kernel = tt::tt_metal::CreateKernel(
+        program,
+        reader_kernel_path,
+        all_cores,
+        tt::tt_metal::DataMovementConfig{
+            .processor = tt::tt_metal::DataMovementProcessor::RISCV_1,
+            .noc = tt::tt_metal::NOC::RISCV_1_default,
+        });
+
+    SetCommonRuntimeArgs(program, reader_kernel, kernel_args);
+    EnqueueProgram(command_queue, program, true);
+    Finish(command_queue);
+
+    DumpDeviceProfileResults(device, program);
+
+    CloseDevice(device);
+}
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    // detail::EnablePersistentKernelCache();
 
-    auto *device = tt::tt_metal::CreateDevice(0);
+    // std::cout << "CTA" << std::endl;
+    // run_once_cta();
 
-    std::vector<bfloat16> data = create_random_vector_of_bfloat16_native(4096, 1, 123);
-    auto buffer_config = tt::tt_metal::InterleavedBufferConfig{
-        .device = device, .size = 4096, .page_size = 32, .buffer_type = tt::tt_metal::BufferType::DRAM};
+    // for (int i = 0; i < 100; i++) {
+    //     run_once_cta();
+    // }
 
-    std::shared_ptr<tt::tt_metal::Buffer> buffer = tt::tt_metal::CreateBuffer(buffer_config);
+    // std::cout << "RTA" << std::endl;
+    // run_once_rta();
 
-    std::cout << "Created buffer" << std::endl;
+    // for (int i = 0; i < 100; i++) {
+    //     run_once_rta();
+    // }
 
-    auto tensor =
-        ttnn::Tensor(tt::tt_metal::DeviceStorage(buffer), {4096}, tt::tt_metal::DataType::BFLOAT16, ttnn::Layout::TILE);
+    std::cout << "CRTA" << std::endl;
+    run_once_crta();
 
-    std::cout << "Created tensor" << std::endl;
-
-    auto result = ttnn::composite_example_multiple_return(tensor, true, true);
+    // for (int i = 0; i < 100; i++) {
+    //     run_once_crta();
+    // }
 
     return 0;
 }
